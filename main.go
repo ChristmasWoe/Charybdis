@@ -20,20 +20,21 @@ const (
 func main() {
 	mux := http.NewServeMux()
 	//Projects
-	mux.Handle("/projects/get", handlerMiddleware(http.HandlerFunc(getProjects)))
-	mux.Handle("/projects/create", handlerMiddleware(http.HandlerFunc(createProject)))
-	mux.Handle("/projects/edit", handlerMiddleware(http.HandlerFunc(editProject)))
-	//Labels
-	mux.Handle("/labels/get", handlerMiddleware(http.HandlerFunc(getLabels)))
-	mux.Handle("/labels/create", handlerMiddleware(http.HandlerFunc(createLabel)))
-	mux.Handle("/labels/edit", handlerMiddleware(http.HandlerFunc(editLabel)))
-	// Tasks
-	mux.Handle("/tasks/get", handlerMiddleware(http.HandlerFunc(getTasks)))
-	mux.Handle("/tasks/create", handlerMiddleware(http.HandlerFunc(createTask)))
-	mux.Handle("/tasks/edit", handlerMiddleware(http.HandlerFunc(editTask)))
-	mux.Handle("/task/get", handlerMiddleware(http.HandlerFunc(getTask)))
-	mux.Handle("/task/tick", handlerMiddleware(http.HandlerFunc(tickTask)))
-	mux.Handle("/task/delete", handlerMiddleware(http.HandlerFunc(deleteTask)))
+	mux.Handle("/category/get", handlerMiddleware(http.HandlerFunc(getCategories)))
+	mux.Handle("/category/create", handlerMiddleware(http.HandlerFunc(createCategory)))
+	// mux.Handle("/categories/edit", handlerMiddleware(http.HandlerFunc(editProject)))
+
+	// //Labels
+	// mux.Handle("/labels/get", handlerMiddleware(http.HandlerFunc(getLabels)))
+	// mux.Handle("/labels/create", handlerMiddleware(http.HandlerFunc(createLabel)))
+	// mux.Handle("/labels/edit", handlerMiddleware(http.HandlerFunc(editLabel)))
+	// // Tasks
+	// mux.Handle("/tasks/get", handlerMiddleware(http.HandlerFunc(getTasks)))
+	// mux.Handle("/tasks/create", handlerMiddleware(http.HandlerFunc(createTask)))
+	// mux.Handle("/tasks/edit", handlerMiddleware(http.HandlerFunc(editTask)))
+	// mux.Handle("/task/get", handlerMiddleware(http.HandlerFunc(getTask)))
+	// mux.Handle("/task/tick", handlerMiddleware(http.HandlerFunc(tickTask)))
+	// mux.Handle("/task/delete", handlerMiddleware(http.HandlerFunc(deleteTask)))
 
 	err := http.ListenAndServe(":8080", mux)
 	log.Fatal(err)
