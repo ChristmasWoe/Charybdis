@@ -1,11 +1,12 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
-	"log"
+	"charybdis/api"
+	"charybdis/config"
+	"charybdis/middleware"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
 
@@ -18,10 +19,24 @@ const (
 )
 
 func main() {
-	mux := http.NewServeMux()
+	r := gin.Default()
+	db := config.OpenConnection()
+	firebaseAuth := config.SetupFirebase()
+	r.Use(func(c *gin.Context) {
+		c.Set("db", db)
+		c.Set("firebaseAuth", firebaseAuth)
+	})
+	r.Use(middleware.AuthMiddleware)
+	// firebaseAuth := config.SetupFirebase()
+	// mux := http.NewServeMux()
 	//Projects
-	mux.Handle("/category/get", handlerMiddleware(http.HandlerFunc(getCategories)))
-	mux.Handle("/category/create", handlerMiddleware(http.HandlerFunc(createCategory)))
+
+	r.GET("/user", api.FindUsers)
+	r.POST("/user", api.CreateUser)
+
+	// mux.Handle("/category/get", handlerMiddleware(http.HandlerFunc(getCategories)))
+	// mux.Handle("/category/create", handlerMiddleware(http.HandlerFunc(createCategory)))
+
 	// mux.Handle("/categories/edit", handlerMiddleware(http.HandlerFunc(editProject)))
 
 	// //Labels
@@ -36,8 +51,10 @@ func main() {
 	// mux.Handle("/task/tick", handlerMiddleware(http.HandlerFunc(tickTask)))
 	// mux.Handle("/task/delete", handlerMiddleware(http.HandlerFunc(deleteTask)))
 
-	err := http.ListenAndServe(":8080", mux)
-	log.Fatal(err)
+	r.Run(":8080")
+
+	// err := http.ListenAndServe(":8080", mux)
+	// log.Fatal(err)
 }
 
 func handlerMiddleware(next http.Handler) http.Handler {
@@ -56,17 +73,17 @@ func handlerMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func OpenConnection() *sql.DB {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	db, err := sql.Open("postgres", psqlInfo)
-	if err != nil {
-		panic(err)
-	}
+// func OpenConnection() *sql.DB {
+// 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+// 	db, err := sql.Open("postgres", psqlInfo)
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
+// 	err = db.Ping()
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	return db
-}
+// 	return db
+// }
