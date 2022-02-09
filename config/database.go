@@ -1,10 +1,12 @@
 package config
 
 import (
+	"charybdis/api"
 	"fmt"
 
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"gorm.io/driver/postgres"
+
 	// "gorm.io/logger"
 	"gorm.io/gorm"
 )
@@ -27,6 +29,8 @@ func OpenConnection() *gorm.DB {
 	if err != nil {
 		panic("Failed to connect to database!")
 	}
+
+	db.AutoMigrate(&api.User{})
 	// migrate our model for artist
 	//  db.AutoMigrate(&api.Artist{})
 	return db

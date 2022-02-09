@@ -3,6 +3,7 @@ package main
 import (
 	"charybdis/api"
 	"charybdis/config"
+
 	// "charybdis/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -33,9 +34,10 @@ func main() {
 	//Projects
 
 	r.GET("/user", api.FindUsers)
-	r.POST("/user", api.CreateUser)
+	r.GET("/user/get/:email", api.GetUser)
+	r.POST("/user/create", api.CreateUser)
 	r.POST("/category/create", api.CreateCategory)
-	r.GET("/category/get",api.GetCategories)
+	r.GET("/category/get", api.GetCategories)
 	// mux.Handle("/category/get", handlerMiddleware(http.HandlerFunc(getCategories)))
 	// mux.Handle("/category/create", handlerMiddleware(http.HandlerFunc(createCategory)))
 
