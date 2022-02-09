@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strings"
-
+	"fmt"
 	"firebase.google.com/go/auth"
 	"github.com/gin-gonic/gin"
 )
@@ -22,6 +22,7 @@ func AuthMiddleware(c *gin.Context) {
 	//verify token
 	token, err := firebaseAuth.VerifyIDToken(context.Background(), idToken)
 	if err != nil {
+		fmt.Println(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid token"})
 		c.Abort()
 		return
@@ -29,3 +30,17 @@ func AuthMiddleware(c *gin.Context) {
 	c.Set("UUID", token.UID)
 	c.Next()
 }
+
+// func CorsMiddleware(c *gin.Context){
+// 	if r.Method == http.MethodOptions {
+// 		w.Header().Set("Access-Control-Allow-Origin", "*")
+// 		w.Header().Set("Access-Control-Allow-Methods", "POST,GET,DELETE")
+// 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+// 		w.Header().Set("Access-Control-Max-Age", "3600")
+// 		w.WriteHeader(http.StatusNoContent)
+// 		return
+// 	}
+// 	// Set CORS headers for the main request.
+// 	w.Header().Set("Access-Control-Allow-Origin", "*")
+// 	next.ServeHTTP(w, r)
+// }

@@ -5,6 +5,7 @@ import (
 
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"gorm.io/driver/postgres"
+	// "gorm.io/logger"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +21,9 @@ func OpenConnection() *gorm.DB {
 	// Create db instance with gorm
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 
-	db, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{
+		// Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		panic("Failed to connect to database!")
 	}

@@ -3,14 +3,14 @@ package config
 import (
 	"context"
 	"path/filepath"
-
+	"fmt"
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/auth"
 	"google.golang.org/api/option"
 )
 
 func SetupFirebase() *auth.Client {
-	serviceAccountKeyFilePath, err := filepath.Abs("./service-tracker-abfd1-firebase-adminsdk-kn3u5-70160d8796.json")
+	serviceAccountKeyFilePath, err := filepath.Abs("config/creds.json")
 	if err != nil {
 		panic("Unable to load serviceAccountKeys.json file")
 	}
@@ -18,12 +18,17 @@ func SetupFirebase() *auth.Client {
 	//Firebase admin SDK initialization
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
+		fmt.Println(err.Error())
 		panic("Firebase load error")
 	}
 	//Firebase Auth
 	auth, err := app.Auth(context.Background())
 	if err != nil {
+		fmt.Println(err.Error())
 		panic("Firebase load error")
 	}
+
+
+
 	return auth
 }
