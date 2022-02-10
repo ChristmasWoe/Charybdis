@@ -40,9 +40,10 @@ func main() {
 	// mux := http.NewServeMux()
 	//Projects
 
-	r.GET("/user", api.FindUsers)
+	r.GET("/user/getAll", api.FindUsers)
 	r.GET("/user/get/:email", api.GetUser)
 	r.POST("/user/create", api.CreateUser)
+	r.PUT("/user/edit", api.EditUser)
 	r.POST("/category/create", api.CreateCategory)
 	r.GET("/category/get", api.GetCategories)
 	// mux.Handle("/category/get", handlerMiddleware(http.HandlerFunc(getCategories)))

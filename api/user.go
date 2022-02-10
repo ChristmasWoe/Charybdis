@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -36,11 +35,17 @@ type CreateUserInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type EditUserInput struct {
+	UID  string `json:"uid" binding:"required"`
+	Name string `json:"name" binding:"required"`
+	Role string `json:"role"  binding:"required"`
+}
+
 // FindUsers : Controller for getting all users
 func FindUsers(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
 	var users []User
-	db.Find(&users)
+	db.Table("users").Find(&users)
 	c.JSON(http.StatusOK, gin.H{"data": users})
 }
 
@@ -55,8 +60,6 @@ func GetUser(c *gin.Context) {
 	}
 
 	db := c.MustGet("db").(*gorm.DB)
-	// email := c.Query("email")
-	fmt.Println(email)
 	var u User
 	if err := db.Table("users").Where("email = ?", email).First(&u).Error; err != nil {
 		c.JSON(http.StatusNotFound,
@@ -66,6 +69,34 @@ func GetUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": u})
+}
+
+func EditUser(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+	client := c.MustGet("firebaseAuth").(*auth.Client)
+
+	var input EditUserInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	params := (&auth.UserToUpdate{}).
+		DisplayName("John Doe")
+
+	u, err := client.UpdateUser(context.Background(), input.UID, params)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+	log.Printf("Successfully updated user: %v\n", u)
+	// user := User{Name: input.Name, Email: input.Email, Role: input.Role, UID: uid, CreatedAt: time.Now(), UpdatedAt: time.Now()}
+	var cu User
+
+	db.Table("users").Where("uid=?", input.UID).First(&cu)
+
+	db.Table("users").Model(&cu).Updates(map[string]interface{}{"name": input.Name, "role": input.Role, "updated_at": time.Now()})
+	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
 // CreateUser : controller for creating new users
