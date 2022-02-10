@@ -8,6 +8,7 @@ require (
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/denisenkom/go-mssqldb v0.12.0 // indirect
 	github.com/gin-contrib/cors v1.3.1
+	github.com/gin-gonic/autotls v0.0.3 // indirect
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
