@@ -71,6 +71,28 @@ func GetUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": u})
 }
 
+func GetUserById(c *gin.Context) {
+	uid := c.Param("uid")
+	if uid == "" {
+		c.Header("Content-Type", "application/json")
+		c.JSON(http.StatusNotFound,
+			gin.H{"Error: ": "Invalid startingIndex on search filter!"})
+		c.Abort()
+		return
+	}
+
+	db := c.MustGet("db").(*gorm.DB)
+	var u User
+	if err := db.Table("users").Where("uid = ?", uid).First(&u).Error; err != nil {
+		c.JSON(http.StatusNotFound,
+			gin.H{"Error: ": "Doesn't match any user"})
+		c.Abort()
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": u})
+}
+
 func EditUser(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
 	client := c.MustGet("firebaseAuth").(*auth.Client)

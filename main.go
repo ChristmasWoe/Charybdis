@@ -30,7 +30,7 @@ func main() {
 	})
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
-		AllowMethods:     []string{http.MethodGet, http.MethodPatch, http.MethodPost, http.MethodHead, http.MethodDelete, http.MethodOptions},
+		AllowMethods:     []string{http.MethodGet, http.MethodPatch, http.MethodPost, http.MethodHead, http.MethodDelete, http.MethodOptions, http.MethodPut},
 		AllowHeaders:     []string{"Content-Type", "X-XSRF-TOKEN", "Accept", "Origin", "X-Requested-With", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
@@ -42,6 +42,7 @@ func main() {
 
 	r.GET("/user/getAll", api.FindUsers)
 	r.GET("/user/get/:email", api.GetUser)
+	r.GET("/user/getById/:uid", api.GetUserById)
 	r.POST("/user/create", api.CreateUser)
 	r.PUT("/user/edit", api.EditUser)
 	r.POST("/category/create", api.CreateCategory)
