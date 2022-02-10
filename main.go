@@ -3,6 +3,7 @@ package main
 import (
 	"charybdis/api"
 	"charybdis/config"
+	"net/http"
 
 	// "charybdis/middleware"
 	"github.com/gin-contrib/cors"
@@ -27,7 +28,13 @@ func main() {
 		c.Set("db", db)
 		c.Set("firebaseAuth", firebaseAuth)
 	})
-	r.Use(cors.Default())
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{http.MethodGet, http.MethodPatch, http.MethodPost, http.MethodHead, http.MethodDelete, http.MethodOptions},
+		AllowHeaders:     []string{"Content-Type", "X-XSRF-TOKEN", "Accept", "Origin", "X-Requested-With", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 	// r.Use(middleware.AuthMiddleware)
 	// firebaseAuth := config.SetupFirebase()
 	// mux := http.NewServeMux()
