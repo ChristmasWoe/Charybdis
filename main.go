@@ -3,11 +3,7 @@ package main
 import (
 	"charybdis/api"
 	"charybdis/config"
-	"charybdis/middleware"
-	"log"
 	"net/http"
-
-	"github.com/gin-gonic/autotls"
 
 	// "charybdis/middleware"
 	"github.com/gin-contrib/cors"
@@ -33,13 +29,15 @@ func main() {
 		c.Set("firebaseAuth", firebaseAuth)
 	})
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://service-tracker-abfd1.web.app"},
+		AllowOrigins:     []string{"https://service-tracker-abfd1.web.app", "http://localhost:3000"},
 		AllowMethods:     []string{http.MethodGet, http.MethodPatch, http.MethodPost, http.MethodHead, http.MethodDelete, http.MethodOptions, http.MethodPut},
 		AllowHeaders:     []string{"Content-Type", "X-XSRF-TOKEN", "Accept", "Origin", "X-Requested-With", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
-	r.Use(middleware.AuthMiddleware)
+
+	// r.Use(middleware.AuthMiddleware)
+
 	// firebaseAuth := config.SetupFirebase()
 	// mux := http.NewServeMux()
 	//Projects
@@ -67,8 +65,9 @@ func main() {
 	// mux.Handle("/task/get", handlerMiddleware(http.HandlerFunc(getTask)))
 	// mux.Handle("/task/tick", handlerMiddleware(http.HandlerFunc(tickTask)))
 	// mux.Handle("/task/delete", handlerMiddleware(http.HandlerFunc(deleteTask)))
-	log.Fatal(autotls.Run(r, "spt-api.xyz", "spt.spt-api.xyz"))
-	// r.Run(":8080")
+
+	// log.Fatal(autotls.Run(r, "spt-api.xyz", "spt.spt-api.xyz"))
+	r.Run(":8080")
 
 	// err := http.ListenAndServe(":8080", mux)
 	// log.Fatal(err)
