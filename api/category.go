@@ -1,10 +1,12 @@
 package api
 
 import (
-	"net/http"
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+
 	// "github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 )
@@ -18,7 +20,7 @@ type Category struct {
 
 type CreateCategoryInput struct {
 	Name        string `json:"name" binding:"required"`
-	Description string `json:"description" binding:"required"`
+	Description string `json:"description"`
 	ParentId    string `json:"parent_id" `
 }
 
@@ -30,8 +32,8 @@ type CategoryExt struct {
 	SubCollection []CategoryExt `gorm:"-"`
 }
 
-func getSubCategories(parent_id string,c *gin.Context) ([]CategoryExt) {
-	fmt.Printf("Looking in db with parent_id: %s \n",parent_id)
+func getSubCategories(parent_id string, c *gin.Context) []CategoryExt {
+	fmt.Printf("Looking in db with parent_id: %s \n", parent_id)
 	db := c.MustGet("db").(*gorm.DB)
 	res := make([]CategoryExt, 0)
 
@@ -43,12 +45,12 @@ func getSubCategories(parent_id string,c *gin.Context) ([]CategoryExt) {
 	for _, v := range res {
 		s = append(s, v.Name, v.Description, v.Id)
 	}
-	
+
 	fmt.Printf("%q\n", s)
 
-	for k,v := range res {
+	for k, v := range res {
 		res[k].SubCollection = make([]CategoryExt, 0)
-		res[k].SubCollection = getSubCategories(v.Id,c)
+		res[k].SubCollection = getSubCategories(v.Id, c)
 
 		// v.SubCollection = make([]CategoryExt, 0)
 		// v.SubCollection = getSubCategories(v.Id,c)
@@ -69,7 +71,7 @@ func getSubCategories(parent_id string,c *gin.Context) ([]CategoryExt) {
 }
 
 func GetCategories(c *gin.Context) {
-	cts := getSubCategories("",c)
+	cts := getSubCategories("", c)
 
 	c.JSON(http.StatusOK, gin.H{"data": cts})
 	// w.Header().Add("Content-Type", "application/json")
