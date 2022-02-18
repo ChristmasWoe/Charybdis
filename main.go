@@ -4,8 +4,11 @@ import (
 	"charybdis/api"
 	"charybdis/config"
 	"charybdis/middleware"
+	migrations "charybdis/migrations/category"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/autotls"
 
@@ -23,7 +26,32 @@ import (
 // 	dbname   = "postgres"
 // )
 
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+func handleArgs(args []string) {
+	mgs := make([]string, 0)
+	for i, v := range args {
+		if v == "-migrate" {
+			mgs = append(mgs, args[i:]...)
+		}
+	}
+	if contains(mgs, "categories") {
+		fmt.Println("gonna migrate categories")
+		migrations.MigrateCategories()
+	}
+}
+
 func main() {
+	argsWithProg := os.Args[1:]
+	handleArgs(argsWithProg)
+	// migrations.MigrateCategories()
 	r := gin.Default()
 	db := config.OpenConnection()
 	firebaseAuth := config.SetupFirebase()
