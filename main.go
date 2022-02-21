@@ -49,6 +49,8 @@ func main() {
 	r.PUT("/user/edit", api.EditUser)
 	r.POST("/category/create", api.CreateCategory)
 	r.GET("/category/get", api.GetCategories)
+	r.POST("/executor/create", api.CreateExecutor)
+	r.GET("/executor/getAll", api.GetExecutors)
 	// mux.Handle("/category/get", handlerMiddleware(http.HandlerFunc(getCategories)))
 	// mux.Handle("/category/create", handlerMiddleware(http.HandlerFunc(createCategory)))
 

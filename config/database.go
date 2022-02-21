@@ -31,6 +31,7 @@ func OpenConnection() *gorm.DB {
 	}
 
 	db.AutoMigrate(&api.User{})
+	db.AutoMigrate(&api.Executor{})
 	// migrate our model for artist
 	//  db.AutoMigrate(&api.Artist{})
 	return db
