@@ -34,14 +34,14 @@ type Executor struct {
 }
 
 type CreateExecutorInput struct {
-	Name             string         `json:"name"`                                             //`json:"name" binding:"required" `
-	Description      string         `json:"description"`                                      //`json:"description" binding:"required"`
-	DescriptionShort string         `json:"description_short"`                                //`json:"description_short" binding:"required"`
-	DateCreated      time.Time      `json:"date_created"`                                     // `json:"date_created" binding:"required"`
-	ExecutorType     string         `json:"executor_type"`                                    // `json:"executor_type" binding:"required"`
-	MainLocation     GeoPoint       `sql:"type:geometry(Geometry,4326)" json:"main_location"` // `json:"main_location" binding:"required"`
-	WorkingRangeInKm int64          `json:"workingRangeInKm"`                                 // `json:"woringRangeInKm" binding:"required"`
-	Categories       pq.StringArray `json:"categories" gorm:"type:text[]"`                    // `json:"categories" binding:"required"`
+	Name             string         `json:"name"`
+	Description      string         `json:"description"`
+	DescriptionShort string         `json:"description_short"`
+	DateCreated      time.Time      `json:"date_created"`
+	ExecutorType     string         `json:"executor_type"`
+	MainLocation     GeoPoint       `sql:"type:geometry(Geometry,4326)" json:"main_location"`
+	WorkingRangeInKm int64          `json:"workingRangeInKm"`
+	Categories       pq.StringArray `json:"categories" gorm:"type:text[]"`
 }
 
 type ExecutorGetInterface struct {
@@ -63,11 +63,6 @@ type category struct {
 }
 
 func (p *GeoPoint) Scan(value interface{}) error {
-	// bytes, ok := value.([]byte)
-	// if !ok {
-	// 	return errors.New(fmt.Sprint("Failed to unmarshal JSONB value:", value))
-	// }
-
 	stringified := fmt.Sprintf("%v", value)
 	fmt.Println("a0", stringified)
 	stringified = stringified[6 : len(stringified)-1]
@@ -85,7 +80,6 @@ func (p *GeoPoint) Scan(value interface{}) error {
 	p.Longitude = lng
 	p.Latitude = lat
 	return nil
-
 }
 
 func (p GeoPoint) Value() (driver.Value, error) {
@@ -154,24 +148,6 @@ func CreateExecutor(c *gin.Context) {
 		Id:               uuid.NewV4().String()}
 	db.Create(&exec)
 	c.JSON(http.StatusOK, gin.H{"data": exec})
-
-	// if result := db.Create(&ct); result.Error != nil {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	panic(result.Error)
-	// 	fmt.Println(result.Error)
-	// }
-
-	// sqlStatement := `INSERT INTO category (name, description, parent_id, id) VALUES ($1, $2, $3, $4)`
-	// _, err := db.Exec(sqlStatement, ct.Name, ct.Description, ct.ParentId, ct.Id)
-	// if err != nil {
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	panic(err)
-	// }
-
-	// w.WriteHeader(http.StatusOK)
-	// ctBytes, _ := json.MarshalIndent(ct, "", "\t")
-	// w.Write(ctBytes)
-	// defer db.Close()
 }
 
 // func editProject(w http.ResponseWriter, r *http.Request) {
