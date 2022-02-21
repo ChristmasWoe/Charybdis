@@ -79,8 +79,8 @@ func main() {
 	r.PUT("/user/edit", api.EditUser)
 	r.POST("/category/create", api.CreateCategory)
 	r.GET("/category/get", api.GetCategories)
-	// mux.Handle("/category/get", handlerMiddleware(http.HandlerFunc(getCategories)))
-	// mux.Handle("/category/create", handlerMiddleware(http.HandlerFunc(createCategory)))
+	r.POST("/executor/create", api.CreateExecutor)
+	r.GET("/executor/getAll", api.GetExecutors)
 
 	// mux.Handle("/categories/edit", handlerMiddleware(http.HandlerFunc(editProject)))
 
@@ -101,34 +101,3 @@ func main() {
 	// err := http.ListenAndServe(":8080", mux)
 	// log.Fatal(err)
 }
-
-// func handlerMiddleware(next http.Handler) http.Handler {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		if r.Method == http.MethodOptions {
-// 			w.Header().Set("Access-Control-Allow-Origin", "*")
-// 			w.Header().Set("Access-Control-Allow-Methods", "POST,GET,DELETE")
-// 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-// 			w.Header().Set("Access-Control-Max-Age", "3600")
-// 			w.WriteHeader(http.StatusNoContent)
-// 			return
-// 		}
-// 		// Set CORS headers for the main request.
-// 		w.Header().Set("Access-Control-Allow-Origin", "*")
-// 		next.ServeHTTP(w, r)
-// 	})
-// }
-
-// func OpenConnection() *sql.DB {
-// 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-// 	db, err := sql.Open("postgres", psqlInfo)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	err = db.Ping()
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	return db
-// }
