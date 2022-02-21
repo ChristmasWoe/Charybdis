@@ -45,13 +45,21 @@ type CreateExecutorInput struct {
 }
 
 type ExecutorGetInterface struct {
-	*Executor
-	Categories []category
+	Id               string     `gorm:"primaryKey"`
+	Name             string     `json:"name" `
+	Description      string     `json:"description"`
+	DescriptionShort string     `json:"description_short"`
+	DateCreated      time.Time  `json:"date_created"`
+	ExecutorType     string     `json:"executor_type"`
+	MainLocation     GeoPoint   `json:"main_location"`
+	WorkingRangeInKm int64      `json:"workingRangeInKm"`
+	Categories       []category `gorm:"-"`
 }
 
 type category struct {
-	name        string
-	description string
+	Id          string `json:"id" gorm:"primaryKey"`
+	Name        string `json:"name" `
+	Description string `json:"description"`
 }
 
 func (p *GeoPoint) Scan(value interface{}) error {
@@ -88,50 +96,20 @@ func (p *GeoPoint) String() string {
 	return fmt.Sprintf("POINT(%v %v)", p.Longitude, p.Latitude)
 }
 
-// func getSubCategories(parent_id string, c *gin.Context) []CategoryExt {
-// 	fmt.Printf("Looking in db with parent_id: %s \n", parent_id)
-// 	db := c.MustGet("db").(*gorm.DB)
-// 	res := make([]CategoryExt, 0)
-
-// 	// sqlStatement := `SELECT * FROM category WHERE parent_id = $1;`
-
-// 	db.Table("category").Where("parent_id = ?", parent_id).Find(&res)
-
-// 	var s []string
-// 	for _, v := range res {
-// 		s = append(s, v.Name, v.Description, v.Id)
-// 	}
-
-// 	fmt.Printf("%q\n", s)
-
-// 	for k, v := range res {
-// 		res[k].SubCollection = make([]CategoryExt, 0)
-// 		res[k].SubCollection = getSubCategories(v.Id, c)
-
-// 		// v.SubCollection = make([]CategoryExt, 0)
-// 		// v.SubCollection = getSubCategories(v.Id,c)
-// 	}
-// 	// //    .(sqlStatement, parent_id)
-// 	// // if err != nil {
-// 	// // 	log.Fatal(err)
-// 	// // }
-// 	// for rows.Next() {
-// 	// 	var sct CategoryExt
-// 	// 	var pid string
-// 	// 	sct.SubCollection = make([]CategoryExt, 0)
-// 	// 	rows.Scan(&sct.Name, &sct.Description, &pid, &sct.Id)
-// 	// 	sct.SubCollection = getSubCategories(sct.Id,&c)
-// 	// 	res = append(res, sct)
-// 	// }
-// 	return res
-// }
-
 //get Listing
 //get firms in category
+
+func getCategoriesByIds(c *gin.Context, ids []string) []category {
+	db := c.MustGet("db").(*gorm.DB)
+	res := make([]category, 0)
+	db.Table("category").Find(&res, ids)
+	return res
+}
 
 func GetExecutors(c *gin.Context) {
 	db := c.MustGet("db").(*gorm.DB)
 	exs := make([]Executor, 0)
+	exsExt := make([]ExecutorGetInterface, 0)
 	result := db.Find(&exs)
 
 	if result.Error != nil {
@@ -139,7 +117,21 @@ func GetExecutors(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": exs})
+	for _, v := range exs {
+		exsExt = append(exsExt, ExecutorGetInterface{
+			Id:               v.Id,
+			Name:             v.Name,
+			Description:      v.Description,
+			DescriptionShort: v.DescriptionShort,
+			DateCreated:      v.DateCreated,
+			ExecutorType:     v.ExecutorType,
+			MainLocation:     v.MainLocation,
+			WorkingRangeInKm: v.WorkingRangeInKm,
+			Categories:       getCategoriesByIds(c, v.Categories),
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": exsExt})
 }
 
 func CreateExecutor(c *gin.Context) {
@@ -154,7 +146,7 @@ func CreateExecutor(c *gin.Context) {
 	exec := Executor{Name: ex.Name,
 		Description:      ex.Description,
 		DescriptionShort: ex.DescriptionShort,
-		DateCreated:      ex.DateCreated,
+		DateCreated:      time.Now(),
 		ExecutorType:     ex.ExecutorType,
 		MainLocation:     ex.MainLocation,
 		WorkingRangeInKm: ex.WorkingRangeInKm,
@@ -181,35 +173,6 @@ func CreateExecutor(c *gin.Context) {
 	// w.Write(ctBytes)
 	// defer db.Close()
 }
-
-// func CreateCategory(w http.ResponseWriter, r *http.Request) {
-// 	db := config.OpenConnection()
-// 	var ct Category
-// 	r.ParseMultipartForm(0)
-
-// 	ct.Name = r.FormValue("name")
-// 	ct.Description = r.FormValue("description")
-// 	ct.ParentId = r.FormValue("parent_id")
-// 	ct.Id = uuid.NewV4().String()
-
-// 	if result := db.Create(&ct); result.Error != nil {
-// 		w.WriteHeader(http.StatusBadRequest)
-// 		panic(result.Error)
-// 		fmt.Println(result.Error)
-// 	}
-
-// 	// sqlStatement := `INSERT INTO category (name, description, parent_id, id) VALUES ($1, $2, $3, $4)`
-// 	// _, err := db.Exec(sqlStatement, ct.Name, ct.Description, ct.ParentId, ct.Id)
-// 	// if err != nil {
-// 	// 	w.WriteHeader(http.StatusBadRequest)
-// 	// 	panic(err)
-// 	// }
-
-// 	w.WriteHeader(http.StatusOK)
-// 	ctBytes, _ := json.MarshalIndent(ct, "", "\t")
-// 	w.Write(ctBytes)
-// 	// defer db.Close()
-// }
 
 // func editProject(w http.ResponseWriter, r *http.Request) {
 // 	db := OpenConnection()
