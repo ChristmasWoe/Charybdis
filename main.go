@@ -51,7 +51,9 @@ func main() {
 	r.GET("/category/get", api.GetCategories)
 	r.POST("/executor/create", api.CreateExecutor)
 	r.GET("/executor/getAll", api.GetExecutors)
-
+	r.PATCH("/executor/update/:id", api.UpdateExecutor)
+	r.DELETE("/executor/delete/:id", api.DeleteExecutor)
+	r.GET("/executor/get/:id", api.GetExecutor)
 	r.Run(":8080")
 
 	// err := http.ListenAndServe(":8080", mux)
