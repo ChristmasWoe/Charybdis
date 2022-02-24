@@ -21,6 +21,13 @@ type GeoPoint struct {
 	Longitude float64 `json:"lng"`
 }
 
+type WorkHour struct {
+	OpenHour     int `json:"openHour"`
+	OpenMinutes  int `json:"openMinutes"`
+	CloseHour    int `json:"closeHour"`
+	CloseMinutes int `json:"closeMinutes"`
+}
+
 type Executor struct {
 	Id               string         `json:"id" gorm:"primaryKey"`
 	Name             string         `json:"name" `
@@ -28,9 +35,12 @@ type Executor struct {
 	DescriptionShort string         `json:"description_short"`
 	DateCreated      time.Time      `json:"date_created"`
 	ExecutorType     string         `json:"executor_type"`
+	ICO              string         `json:"ico"`
+	WebsiteUrl       string         `json:"website_url"`
 	MainLocation     GeoPoint       `json:"main_location"`
 	WorkingRangeInKm int64          `json:"workingRangeInKm"`
 	Categories       pq.StringArray `json:"categories" gorm:"type:text[]"`
+	WorkHour         WorkHour       `json:"workHour"`
 }
 
 type CreateExecutorInput struct {
@@ -39,9 +49,12 @@ type CreateExecutorInput struct {
 	DescriptionShort string         `json:"description_short"`
 	DateCreated      time.Time      `json:"date_created"`
 	ExecutorType     string         `json:"executor_type"`
-	MainLocation     GeoPoint       `sql:"type:geometry(Geometry,4326)" json:"main_location"`
+	ICO              string         `json:"ico"`
+	WebsiteUrl       string         `json:"website_url"`
+	MainLocation     GeoPoint       `json:"main_location"`
 	WorkingRangeInKm int64          `json:"workingRangeInKm"`
 	Categories       pq.StringArray `json:"categories" gorm:"type:text[]"`
+	WorkHour         WorkHour       `json:"workHour"`
 }
 
 type ExecutorGetInterface struct {
@@ -51,7 +64,10 @@ type ExecutorGetInterface struct {
 	DescriptionShort string     `json:"description_short"`
 	DateCreated      time.Time  `json:"date_created"`
 	ExecutorType     string     `json:"executor_type"`
+	ICO              string     `json:"ico"`
+	WebsiteUrl       string     `json:"website_url"`
 	MainLocation     GeoPoint   `json:"main_location"`
+	WorkHour         WorkHour   `json:"workHour"`
 	WorkingRangeInKm int64      `json:"workingRangeInKm"`
 	Categories       []category `gorm:"-"`
 }
@@ -90,12 +106,62 @@ func (p *GeoPoint) String() string {
 	return fmt.Sprintf("POINT(%v %v)", p.Longitude, p.Latitude)
 }
 
+func (w *WorkHour) Scan(value interface{}) error {
+	stringified := fmt.Sprintf("%v", value)
+	splitted := strings.Split(stringified, " ")
+	open := strings.Split(splitted[0], ":")
+	close := strings.Split(splitted[1], ":")
+	oh, err := strconv.Atoi(open[0])
+	if err != nil {
+		return errors.New("couldn't read OpenHours")
+	}
+	om, err := strconv.Atoi(open[1])
+	if err != nil {
+		return errors.New("couldn't read OpenMinutes")
+	}
+
+	ch, err := strconv.Atoi(close[0])
+	if err != nil {
+		return errors.New("couldn't read CloseHours")
+	}
+	cm, err := strconv.Atoi(close[1])
+	if err != nil {
+		return errors.New("couldn't read CloseMinutes")
+	}
+	w.OpenHour = oh
+	w.OpenMinutes = om
+	w.CloseHour = ch
+	w.CloseMinutes = cm
+
+	return nil
+}
+
+func (w WorkHour) Value() (driver.Value, error) {
+	return w.String(), nil
+}
+
+func (w *WorkHour) String() string {
+	return fmt.Sprintf("%s:%s %s:%s", padNumber(w.OpenHour), padNumber(w.OpenMinutes), padNumber(w.CloseHour), padNumber(w.CloseMinutes))
+}
+
+func padNumber(n int) string {
+	if n >= 0 && n < 10 {
+		return fmt.Sprintf("0%d", n)
+	} else {
+		return fmt.Sprintf("%d", n)
+	}
+}
+
 //get Listing
 //get firms in category
 
 func getCategoriesByIds(c *gin.Context, ids []string) []category {
-	db := c.MustGet("db").(*gorm.DB)
+	fmt.Println("ids", ids)
 	res := make([]category, 0)
+	if len(ids) == 0 {
+		return res
+	}
+	db := c.MustGet("db").(*gorm.DB)
 	db.Table("category").Find(&res, ids)
 	return res
 }
@@ -119,7 +185,10 @@ func GetExecutors(c *gin.Context) {
 			DescriptionShort: v.DescriptionShort,
 			DateCreated:      v.DateCreated,
 			ExecutorType:     v.ExecutorType,
+			ICO:              v.ICO,
+			WebsiteUrl:       v.WebsiteUrl,
 			MainLocation:     v.MainLocation,
+			WorkHour:         v.WorkHour,
 			WorkingRangeInKm: v.WorkingRangeInKm,
 			Categories:       getCategoriesByIds(c, v.Categories),
 		})
@@ -141,13 +210,100 @@ func CreateExecutor(c *gin.Context) {
 		Description:      ex.Description,
 		DescriptionShort: ex.DescriptionShort,
 		DateCreated:      time.Now(),
+		ICO:              ex.ICO,
+		WebsiteUrl:       ex.WebsiteUrl,
 		ExecutorType:     ex.ExecutorType,
 		MainLocation:     ex.MainLocation,
+		WorkHour:         ex.WorkHour,
 		WorkingRangeInKm: ex.WorkingRangeInKm,
 		Categories:       ex.Categories,
 		Id:               uuid.NewV4().String()}
 	db.Create(&exec)
 	c.JSON(http.StatusOK, gin.H{"data": exec})
+}
+
+func UpdateExecutor(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+	id := c.Param("id")
+	if id == "" {
+		c.Header("Content-Type", "application/json")
+		c.JSON(http.StatusNotFound,
+			gin.H{"Error: ": "Invalid or empty id"})
+		c.Abort()
+		return
+	}
+	var ex CreateExecutorInput
+
+	if err := c.ShouldBindJSON(&ex); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	var oldEx Executor
+	db.Where("id = ?", id).Find(&oldEx)
+
+	oldEx.Name = ex.Name
+	oldEx.Description = ex.Description
+	oldEx.DescriptionShort = ex.DescriptionShort
+	oldEx.ICO = ex.ICO
+	oldEx.WebsiteUrl = ex.WebsiteUrl
+	oldEx.ExecutorType = ex.ExecutorType
+	oldEx.MainLocation = ex.MainLocation
+	oldEx.WorkHour = ex.WorkHour
+	oldEx.WorkingRangeInKm = ex.WorkingRangeInKm
+	oldEx.Categories = ex.Categories
+
+	ret := db.Save(&oldEx)
+	if ret.RowsAffected < 1 {
+		c.Header("Content-Type", "application/json")
+		c.JSON(http.StatusNotFound,
+			gin.H{"Error: ": fmt.Sprintf("row with id=%s cannot be edit because it doesn't exist", id)})
+	} else {
+		fmt.Println("rows", ret, ret.RowsAffected)
+		c.JSON(http.StatusOK, gin.H{"data": true})
+	}
+}
+
+func GetExecutor(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+	id := c.Param("id")
+	if id == "" {
+		c.Header("Content-Type", "application/json")
+		c.JSON(http.StatusNotFound,
+			gin.H{"Error: ": "Invalid or empty id"})
+		c.Abort()
+		return
+	}
+	var ex Executor
+	db.Where("id = ?", id).Find(&ex)
+	c.JSON(http.StatusOK, gin.H{"data": ex})
+}
+
+func DeleteExecutor(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+	id := c.Param("id")
+	if id == "" {
+		c.Header("Content-Type", "application/json")
+		c.JSON(http.StatusNotFound,
+			gin.H{"Error: ": "Invalid or empty id"})
+		c.Abort()
+		return
+	}
+	ret := db.Where("id = ?", id).Delete(&Executor{})
+
+	if db.Error != nil {
+		c.Header("Content-Type", "application/json")
+		fmt.Println("db error", db.Error, db.Error.Error())
+		c.JSON(http.StatusNotFound,
+			gin.H{"Error: ": "db error"})
+	} else if ret.RowsAffected < 1 {
+		fmt.Println("error exists")
+		c.Header("Content-Type", "application/json")
+		c.JSON(http.StatusNotFound,
+			gin.H{"Error: ": fmt.Sprintf("row with id=%s cannot be deleted because it doesn't exist", id)})
+	} else {
+		fmt.Println("rows", ret, ret.RowsAffected)
+		c.JSON(http.StatusOK, gin.H{"data": true})
+	}
 }
 
 // func editProject(w http.ResponseWriter, r *http.Request) {
