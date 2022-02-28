@@ -16,7 +16,8 @@ import (
 
 // User : Model for User
 type User struct {
-	ID        uint      `json:"id" gorm:"primary_key"`
+	// gorm.Model
+	ID        uint      `gorm:"primary_key"`
 	UID       string    `json:"uid"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email" gorm:"unique;not null"`
@@ -147,6 +148,8 @@ func CreateUser(c *gin.Context) {
 	log.Printf("Successfully created user: %v\n", u)
 	uid := u.UserInfo.UID
 	// Create user
+	// var user User
+	// user.
 	user := User{Name: input.Name, Email: input.Email, Role: input.Role, UID: uid, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 	db.Create(&user)
 	c.JSON(http.StatusOK, gin.H{"data": user})
