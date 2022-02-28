@@ -9,7 +9,7 @@ import (
 )
 
 type Log struct {
-	ID         uint      `gorm:"primary_key"`
+	ID         uint      `json:"id" gorm:"primary_key"`
 	Uid        string    `json:"uid"`
 	Method     string    `json:"method"`
 	Controller string    `json:"controller"`
