@@ -1,7 +1,6 @@
 package logging
 
 import (
-	"log"
 	"strings"
 	"time"
 
@@ -10,7 +9,7 @@ import (
 )
 
 type Log struct {
-	ID         uint      `json:"id" gorm:"primary_key"`
+	ID         uint      `gorm:"primary_key"`
 	Uid        string    `json:"uid"`
 	Method     string    `json:"method"`
 	Controller string    `json:"controller"`
@@ -33,35 +32,24 @@ func Logger() gin.HandlerFunc {
 		// before request
 
 		c.Next()
-		log.Println("time", lg.Time)
 		// after request
 		uid, uidExists := c.Get("UUID")
-		log.Println("uid exists", uidExists)
 		if !uidExists {
 			return
 		}
 		lg.Uid = uid.(string)
-		log.Println("uid is", lg.Uid)
 
 		latency := time.Since(t)
 		lg.Latency = int64(latency / time.Millisecond)
-		log.Println("latency is", lg.Latency)
-		log.Print(latency)
 
 		lg.Method = c.Request.Method
-		log.Println("Method is", lg.Method)
 		fp := c.FullPath()
-		log.Println("FullPath is", fp)
 		chunks := strings.Split(fp, "/")
 		lg.Controller = chunks[1]
-		log.Println("Controller is", lg.Controller)
 		lg.Action = chunks[2]
-		log.Println("Action is", lg.Action)
 		// access the status we are sending
 		status := c.Writer.Status()
 		lg.Status = status
-		log.Println("Status is", lg.Status)
-		log.Println(status)
 		db.Table("logs").Create(&lg)
 	}
 }
