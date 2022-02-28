@@ -3,6 +3,7 @@ package main
 import (
 	"charybdis/api"
 	"charybdis/config"
+	"charybdis/logging"
 	"charybdis/middleware"
 	migrations "charybdis/migrations/category"
 	"fmt"
@@ -68,6 +69,7 @@ func main() {
 		AllowCredentials: true,
 	}))
 	r.Use(middleware.AuthMiddleware)
+	r.Use(logging.Logger())
 	// firebaseAuth := config.SetupFirebase()
 	// mux := http.NewServeMux()
 	//Projects
