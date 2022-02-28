@@ -6,9 +6,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type Log struct {
+	ID         uint      `json:"id" gorm:"primary_key"`
 	Uid        string    `json:"uid"`
 	Method     string    `json:"method"`
 	Controller string    `json:"controller"`
@@ -23,7 +25,7 @@ func Logger() gin.HandlerFunc {
 		var lg Log
 		t := time.Now()
 		lg.Time = t
-		// db := c.MustGet("db")
+		db := c.MustGet("db").(*gorm.DB)
 
 		// Set example variable
 		// c.Set("example", "12345")
@@ -60,6 +62,6 @@ func Logger() gin.HandlerFunc {
 		lg.Status = status
 		log.Println("Status is", lg.Status)
 		log.Println(status)
-
+		db.Table("logs").Create(&lg)
 	}
 }
