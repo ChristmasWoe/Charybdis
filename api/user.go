@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -153,4 +154,41 @@ func CreateUser(c *gin.Context) {
 	user := User{Name: input.Name, Email: input.Email, Role: input.Role, UID: uid, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 	db.Create(&user)
 	c.JSON(http.StatusOK, gin.H{"data": user})
+}
+
+func DeleteUser(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+	client := c.MustGet("firebaseAuth").(*auth.Client)
+	uid := c.Param("uid")
+	if uid == "" {
+		c.Header("Content-Type", "application/json")
+		c.JSON(http.StatusNotFound,
+			gin.H{"Error: ": "Invalid or empty uid"})
+		c.Abort()
+		return
+	}
+	ret := db.Where("uid = ?", uid).Delete(&User{})
+
+	if db.Error != nil {
+		c.Header("Content-Type", "application/json")
+		fmt.Println("db error", db.Error, db.Error.Error())
+		c.JSON(http.StatusNotFound,
+			gin.H{"Error: ": "db error"})
+	} else if ret.RowsAffected < 1 {
+		fmt.Println("error exists")
+		c.Header("Content-Type", "application/json")
+		c.JSON(http.StatusNotFound,
+			gin.H{"Error: ": fmt.Sprintf("row with id=%s cannot be deleted because it doesn't exist", uid)})
+	} else {
+		fmt.Println("rows", ret, ret.RowsAffected)
+		err := client.DeleteUser(context.Background(), uid)
+		if err != nil {
+			c.Header("Content-Type", "application/json")
+			c.JSON(http.StatusNotFound,
+				gin.H{"Error: ": fmt.Sprintf("User with id=%s couldn't be deleted from firebase", uid)})
+			c.Abort()
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"data": true})
+	}
 }

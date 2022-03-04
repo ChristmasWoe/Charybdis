@@ -77,6 +77,7 @@ func main() {
 	r.GET("/user/getAll", api.FindUsers)
 	r.GET("/user/get/:email", api.GetUser)
 	r.GET("/user/getById/:uid", api.GetUserById)
+	r.DELETE("/user/delete/:uid", api.DeleteUser)
 	r.POST("/user/create", api.CreateUser)
 	r.PUT("/user/edit", api.EditUser)
 	r.POST("/category/create", api.CreateCategory)
