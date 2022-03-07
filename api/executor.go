@@ -35,7 +35,7 @@ type Executor struct {
 	DescriptionShort string         `json:"description_short"`
 	DateCreated      time.Time      `json:"date_created"`
 	ExecutorType     string         `json:"executor_type"`
-	ICO              string         `json:"ico" gorm:"index:executors,unique"`
+	ICO              string         `json:"ico" gorm:"uniqueIndex"`
 	WebsiteUrl       string         `json:"website_url"`
 	MainLocation     GeoPoint       `json:"main_location"`
 	WorkingRangeInKm int64          `json:"workingRangeInKm"`
