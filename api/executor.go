@@ -219,7 +219,7 @@ func CreateExecutor(c *gin.Context) {
 		Categories:       ex.Categories,
 		Id:               uuid.NewV4().String()}
 	ret := db.Create(&exec)
-	fmt.Println("create ret", ret)
+	fmt.Println("create ret", ret.Error, ret.Statement)
 	c.JSON(http.StatusOK, gin.H{"data": exec})
 }
 
