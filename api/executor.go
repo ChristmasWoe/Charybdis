@@ -38,6 +38,8 @@ type Executor struct {
 	ICO              string         `json:"ico" gorm:"uniqueIndex"`
 	WebsiteUrl       string         `json:"website_url"`
 	MainLocation     GeoPoint       `json:"main_location"`
+	City             string         `json:"city"`
+	Address          string         `json:"address"`
 	WorkingRangeInKm int64          `json:"workingRangeInKm"`
 	Categories       pq.StringArray `json:"categories" gorm:"type:text[]"`
 	WorkHour         WorkHour       `json:"workHour"`
@@ -52,6 +54,8 @@ type CreateExecutorInput struct {
 	ICO              string         `json:"ico"`
 	WebsiteUrl       string         `json:"website_url"`
 	MainLocation     GeoPoint       `json:"main_location"`
+	City             string         `json:"city"`
+	Address          string         `json:"address"`
 	WorkingRangeInKm int64          `json:"workingRangeInKm"`
 	Categories       pq.StringArray `json:"categories" gorm:"type:text[]"`
 	WorkHour         WorkHour       `json:"workHour"`
@@ -67,6 +71,8 @@ type ExecutorGetInterface struct {
 	ICO              string     `json:"ico"`
 	WebsiteUrl       string     `json:"website_url"`
 	MainLocation     GeoPoint   `json:"main_location"`
+	City             string     `json:"city"`
+	Address          string     `json:"address"`
 	WorkHour         WorkHour   `json:"workHour"`
 	WorkingRangeInKm int64      `json:"workingRangeInKm"`
 	Categories       []category `gorm:"-"`
@@ -188,6 +194,8 @@ func GetExecutors(c *gin.Context) {
 			ICO:              v.ICO,
 			WebsiteUrl:       v.WebsiteUrl,
 			MainLocation:     v.MainLocation,
+			City:             v.City,
+			Address:          v.Address,
 			WorkHour:         v.WorkHour,
 			WorkingRangeInKm: v.WorkingRangeInKm,
 			Categories:       getCategoriesByIds(c, v.Categories),
@@ -214,6 +222,8 @@ func CreateExecutor(c *gin.Context) {
 		WebsiteUrl:       ex.WebsiteUrl,
 		ExecutorType:     ex.ExecutorType,
 		MainLocation:     ex.MainLocation,
+		City:             ex.City,
+		Address:          ex.Address,
 		WorkHour:         ex.WorkHour,
 		WorkingRangeInKm: ex.WorkingRangeInKm,
 		Categories:       ex.Categories,
@@ -261,6 +271,10 @@ func UpdateExecutor(c *gin.Context) {
 	oldEx.WebsiteUrl = ex.WebsiteUrl
 	oldEx.ExecutorType = ex.ExecutorType
 	oldEx.MainLocation = ex.MainLocation
+
+	oldEx.City = ex.City
+	oldEx.Address = ex.Address
+
 	oldEx.WorkHour = ex.WorkHour
 	oldEx.WorkingRangeInKm = ex.WorkingRangeInKm
 	oldEx.Categories = ex.Categories
