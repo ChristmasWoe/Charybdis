@@ -266,25 +266,23 @@ func UpdateExecutor(c *gin.Context) {
 	oldEx.Categories = ex.Categories
 
 	ret := db.Save(&oldEx)
+	if ret.Error != nil {
+		if strings.Contains(ret.Error.Error(), "23505") {
+			c.Header("Content-Type", "application/json")
+			c.JSON(http.StatusConflict,
+				gin.H{"Error": "Such ICO already exists"})
+		} else {
+			c.Header("Content-Type", "application/json")
+			c.JSON(http.StatusSeeOther,
+				gin.H{"Error": "Something went wrong"})
+		}
+		return
+	}
 	if ret.RowsAffected < 1 {
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusNotFound,
 			gin.H{"Error": fmt.Sprintf("row with id=%s cannot be edit because it doesn't exist", id)})
 	} else {
-
-		if ret.Error != nil {
-			if strings.Contains(ret.Error.Error(), "23505") {
-				c.Header("Content-Type", "application/json")
-				c.JSON(http.StatusConflict,
-					gin.H{"Error": "Such ICO already exists"})
-			} else {
-				c.Header("Content-Type", "application/json")
-				c.JSON(http.StatusSeeOther,
-					gin.H{"Error": "Something went wrong"})
-			}
-			return
-		}
-
 		fmt.Println("rows", ret, ret.RowsAffected)
 		c.JSON(http.StatusOK, gin.H{"data": true})
 	}
