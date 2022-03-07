@@ -35,7 +35,7 @@ type Executor struct {
 	DescriptionShort string         `json:"description_short"`
 	DateCreated      time.Time      `json:"date_created"`
 	ExecutorType     string         `json:"executor_type"`
-	ICO              string         `json:"ico"`
+	ICO              string         `json:"ico" gorm:"unique"`
 	WebsiteUrl       string         `json:"website_url"`
 	MainLocation     GeoPoint       `json:"main_location"`
 	WorkingRangeInKm int64          `json:"workingRangeInKm"`
@@ -218,7 +218,8 @@ func CreateExecutor(c *gin.Context) {
 		WorkingRangeInKm: ex.WorkingRangeInKm,
 		Categories:       ex.Categories,
 		Id:               uuid.NewV4().String()}
-	db.Create(&exec)
+	ret := db.Create(&exec)
+	fmt.Println("create ret", ret)
 	c.JSON(http.StatusOK, gin.H{"data": exec})
 }
 
