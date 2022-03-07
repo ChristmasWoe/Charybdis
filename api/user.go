@@ -56,7 +56,7 @@ func GetUser(c *gin.Context) {
 	if email == "" {
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusNotFound,
-			gin.H{"Error: ": "Invalid startingIndex on search filter!"})
+			gin.H{"Error": "Invalid startingIndex on search filter!"})
 		c.Abort()
 		return
 	}
@@ -65,7 +65,7 @@ func GetUser(c *gin.Context) {
 	var u User
 	if err := db.Table("users").Where("email = ?", email).First(&u).Error; err != nil {
 		c.JSON(http.StatusNotFound,
-			gin.H{"Error: ": "Doesn't match any user"})
+			gin.H{"Error": "Doesn't match any user"})
 		c.Abort()
 		return
 	}
@@ -78,7 +78,7 @@ func GetUserById(c *gin.Context) {
 	if uid == "" {
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusNotFound,
-			gin.H{"Error: ": "Invalid startingIndex on search filter!"})
+			gin.H{"Error": "Invalid startingIndex on search filter!"})
 		c.Abort()
 		return
 	}
@@ -87,7 +87,7 @@ func GetUserById(c *gin.Context) {
 	var u User
 	if err := db.Table("users").Where("uid = ?", uid).First(&u).Error; err != nil {
 		c.JSON(http.StatusNotFound,
-			gin.H{"Error: ": "Doesn't match any user"})
+			gin.H{"Error": "Doesn't match any user"})
 		c.Abort()
 		return
 	}
@@ -101,7 +101,7 @@ func EditUser(c *gin.Context) {
 
 	var input EditUserInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
 	}
 
@@ -130,7 +130,7 @@ func CreateUser(c *gin.Context) {
 	// Validate input
 	var input CreateUserInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
 	}
 
@@ -173,19 +173,19 @@ func DeleteUser(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		fmt.Println("db error", db.Error, db.Error.Error())
 		c.JSON(http.StatusNotFound,
-			gin.H{"Error: ": "db error"})
+			gin.H{"Error": "db error"})
 	} else if ret.RowsAffected < 1 {
 		fmt.Println("error exists")
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusNotFound,
-			gin.H{"Error: ": fmt.Sprintf("row with id=%s cannot be deleted because it doesn't exist", uid)})
+			gin.H{"Error": fmt.Sprintf("row with id=%s cannot be deleted because it doesn't exist", uid)})
 	} else {
 		fmt.Println("rows", ret, ret.RowsAffected)
 		err := client.DeleteUser(context.Background(), uid)
 		if err != nil {
 			c.Header("Content-Type", "application/json")
 			c.JSON(http.StatusNotFound,
-				gin.H{"Error: ": fmt.Sprintf("User with id=%s couldn't be deleted from firebase", uid)})
+				gin.H{"Error": fmt.Sprintf("User with id=%s couldn't be deleted from firebase", uid)})
 			c.Abort()
 			return
 		}

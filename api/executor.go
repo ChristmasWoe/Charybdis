@@ -173,7 +173,7 @@ func GetExecutors(c *gin.Context) {
 	result := db.Find(&exs)
 
 	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": result.Error.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"Error": result.Error.Error()})
 		return
 	}
 
@@ -202,7 +202,7 @@ func CreateExecutor(c *gin.Context) {
 	var ex CreateExecutorInput
 
 	if err := c.ShouldBindJSON(&ex); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
 	}
 	fmt.Println("Executor", ex.MainLocation)
@@ -223,11 +223,11 @@ func CreateExecutor(c *gin.Context) {
 		if strings.Contains(ret.Error.Error(), "23505") {
 			c.Header("Content-Type", "application/json")
 			c.JSON(http.StatusConflict,
-				gin.H{"Error: ": "Such ICO already exists"})
+				gin.H{"Error": "Such ICO already exists"})
 		} else {
 			c.Header("Content-Type", "application/json")
 			c.JSON(http.StatusSeeOther,
-				gin.H{"Error: ": "Something went wrong"})
+				gin.H{"Error": "Something went wrong"})
 		}
 		return
 	}
@@ -241,14 +241,14 @@ func UpdateExecutor(c *gin.Context) {
 	if id == "" {
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusNotFound,
-			gin.H{"Error: ": "Invalid or empty id"})
+			gin.H{"Error": "Invalid or empty id"})
 		c.Abort()
 		return
 	}
 	var ex CreateExecutorInput
 
 	if err := c.ShouldBindJSON(&ex); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
 	}
 	var oldEx Executor
@@ -269,18 +269,18 @@ func UpdateExecutor(c *gin.Context) {
 	if ret.RowsAffected < 1 {
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusNotFound,
-			gin.H{"Error: ": fmt.Sprintf("row with id=%s cannot be edit because it doesn't exist", id)})
+			gin.H{"Error": fmt.Sprintf("row with id=%s cannot be edit because it doesn't exist", id)})
 	} else {
 
 		if ret.Error != nil {
 			if strings.Contains(ret.Error.Error(), "23505") {
 				c.Header("Content-Type", "application/json")
 				c.JSON(http.StatusConflict,
-					gin.H{"Error: ": "Such ICO already exists"})
+					gin.H{"Error": "Such ICO already exists"})
 			} else {
 				c.Header("Content-Type", "application/json")
 				c.JSON(http.StatusSeeOther,
-					gin.H{"Error: ": "Something went wrong"})
+					gin.H{"Error": "Something went wrong"})
 			}
 			return
 		}
@@ -296,7 +296,7 @@ func GetExecutor(c *gin.Context) {
 	if id == "" {
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusNotFound,
-			gin.H{"Error: ": "Invalid or empty id"})
+			gin.H{"Error": "Invalid or empty id"})
 		c.Abort()
 		return
 	}
@@ -311,7 +311,7 @@ func DeleteExecutor(c *gin.Context) {
 	if id == "" {
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusNotFound,
-			gin.H{"Error: ": "Invalid or empty id"})
+			gin.H{"Error": "Invalid or empty id"})
 		c.Abort()
 		return
 	}
@@ -321,12 +321,12 @@ func DeleteExecutor(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		fmt.Println("db error", db.Error, db.Error.Error())
 		c.JSON(http.StatusNotFound,
-			gin.H{"Error: ": "db error"})
+			gin.H{"Error": "db error"})
 	} else if ret.RowsAffected < 1 {
 		fmt.Println("error exists")
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusNotFound,
-			gin.H{"Error: ": fmt.Sprintf("row with id=%s cannot be deleted because it doesn't exist", id)})
+			gin.H{"Error": fmt.Sprintf("row with id=%s cannot be deleted because it doesn't exist", id)})
 	} else {
 		fmt.Println("rows", ret, ret.RowsAffected)
 		c.JSON(http.StatusOK, gin.H{"data": true})

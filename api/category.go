@@ -87,7 +87,7 @@ func CreateCategory(c *gin.Context) {
 	var ct CreateCategoryInput
 
 	if err := c.ShouldBindJSON(&ct); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
 	}
 
