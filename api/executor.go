@@ -219,6 +219,18 @@ func CreateExecutor(c *gin.Context) {
 		Categories:       ex.Categories,
 		Id:               uuid.NewV4().String()}
 	ret := db.Create(&exec)
+	if ret.Error != nil {
+		if strings.Contains(ret.Error.Error(), "23505") {
+			c.Header("Content-Type", "application/json")
+			c.JSON(http.StatusConflict,
+				gin.H{"Error: ": "Such ICO already exists"})
+		} else {
+			c.Header("Content-Type", "application/json")
+			c.JSON(http.StatusSeeOther,
+				gin.H{"Error: ": "Something went wrong"})
+		}
+		return
+	}
 	fmt.Println("create ret", ret.Error, ret.Statement)
 	c.JSON(http.StatusOK, gin.H{"data": exec})
 }
@@ -259,6 +271,20 @@ func UpdateExecutor(c *gin.Context) {
 		c.JSON(http.StatusNotFound,
 			gin.H{"Error: ": fmt.Sprintf("row with id=%s cannot be edit because it doesn't exist", id)})
 	} else {
+
+		if ret.Error != nil {
+			if strings.Contains(ret.Error.Error(), "23505") {
+				c.Header("Content-Type", "application/json")
+				c.JSON(http.StatusConflict,
+					gin.H{"Error: ": "Such ICO already exists"})
+			} else {
+				c.Header("Content-Type", "application/json")
+				c.JSON(http.StatusSeeOther,
+					gin.H{"Error: ": "Something went wrong"})
+			}
+			return
+		}
+
 		fmt.Println("rows", ret, ret.RowsAffected)
 		c.JSON(http.StatusOK, gin.H{"data": true})
 	}
