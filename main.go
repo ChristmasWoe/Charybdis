@@ -62,7 +62,7 @@ func main() {
 		c.Set("firebaseAuth", firebaseAuth)
 	})
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://service-tracker-abfd1.web.app"},
+		AllowOrigins:     []string{"https://service-tracker-abfd1.web.app", "http://localhost:3000"},
 		AllowMethods:     []string{http.MethodGet, http.MethodPatch, http.MethodPost, http.MethodHead, http.MethodDelete, http.MethodOptions, http.MethodPut},
 		AllowHeaders:     []string{"Content-Type", "X-XSRF-TOKEN", "Accept", "Origin", "X-Requested-With", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
