@@ -2,7 +2,6 @@ package config
 
 import (
 	"charybdis/api"
-	"charybdis/logging"
 	"fmt"
 
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
@@ -33,7 +32,7 @@ func OpenConnection() *gorm.DB {
 
 	db.AutoMigrate(&api.User{})
 	db.AutoMigrate(&api.Executor{})
-	db.AutoMigrate(&logging.Log{})
+	// db.AutoMigrate(&logging.Log{})
 	// migrate our model for artist
 	//  db.AutoMigrate(&api.Artist{})
 	return db

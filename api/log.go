@@ -21,10 +21,12 @@ type Log struct {
 	Time       time.Time `json:"time"`
 	Latency    int64     `json:"latency"`
 	Status     int       `json:"status"`
+	AffectId   string    `json:"affect_id"`
 }
 
 func GetLogsById(c *gin.Context) {
 	uid := c.Param("uid")
+
 	if uid == "" {
 		c.Header("Content-Type", "application/json")
 		c.JSON(http.StatusNotFound,

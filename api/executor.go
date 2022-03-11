@@ -214,6 +214,8 @@ func CreateExecutor(c *gin.Context) {
 		return
 	}
 	fmt.Println("Executor", ex.MainLocation)
+	guid := uuid.NewV4().String()
+	c.Set("affect_id", guid)
 	exec := Executor{Name: ex.Name,
 		Description:      ex.Description,
 		DescriptionShort: ex.DescriptionShort,
@@ -227,7 +229,7 @@ func CreateExecutor(c *gin.Context) {
 		WorkHour:         ex.WorkHour,
 		WorkingRangeInKm: ex.WorkingRangeInKm,
 		Categories:       ex.Categories,
-		Id:               uuid.NewV4().String()}
+		Id:               guid}
 	ret := db.Create(&exec)
 	if ret.Error != nil {
 		if strings.Contains(ret.Error.Error(), "23505") {
@@ -255,6 +257,7 @@ func UpdateExecutor(c *gin.Context) {
 		c.Abort()
 		return
 	}
+	c.Set("affect_id", id)
 	var ex CreateExecutorInput
 
 	if err := c.ShouldBindJSON(&ex); err != nil {
@@ -327,6 +330,7 @@ func DeleteExecutor(c *gin.Context) {
 		c.Abort()
 		return
 	}
+	c.Set("affect_id", id)
 	ret := db.Where("id = ?", id).Delete(&Executor{})
 
 	if db.Error != nil {

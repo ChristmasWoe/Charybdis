@@ -97,8 +97,9 @@ func CreateCategory(c *gin.Context) {
 	// ct.Description = r.FormValue("description")
 	// ct.ParentId = r.FormValue("parent_id")
 	// ct.Id = uuid.NewV4().String()
-
-	cat := Category{Name: ct.Name, Description: ct.Description, ParentId: ct.ParentId, Id: uuid.NewV4().String()}
+	guid := uuid.NewV4().String()
+	c.Set("affect_id", guid)
+	cat := Category{Name: ct.Name, Description: ct.Description, ParentId: ct.ParentId, Id: guid}
 	db.Table("category").Create(&cat)
 	c.JSON(http.StatusOK, gin.H{"data": cat})
 

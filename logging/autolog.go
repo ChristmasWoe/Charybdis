@@ -17,6 +17,7 @@ type Log struct {
 	Time       time.Time `json:"time"`
 	Latency    int64     `json:"latency"`
 	Status     int       `json:"status"`
+	AffectId   string    `json:"affect_id"`
 }
 
 func Logger() gin.HandlerFunc {
@@ -34,6 +35,11 @@ func Logger() gin.HandlerFunc {
 		c.Next()
 		// after request
 		uid, uidExists := c.Get("UUID")
+
+		affect_id, _ := c.Get("affect_id")
+
+		lg.AffectId = affect_id.(string)
+
 		if !uidExists {
 			return
 		}

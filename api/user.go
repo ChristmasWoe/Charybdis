@@ -104,9 +104,9 @@ func EditUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
 	}
-
+	c.Set("affect_id", input.UID)
 	params := (&auth.UserToUpdate{}).
-		DisplayName("John Doe")
+		DisplayName(input.Name)
 
 	u, err := client.UpdateUser(context.Background(), input.UID, params)
 	if err != nil {
@@ -148,6 +148,7 @@ func CreateUser(c *gin.Context) {
 	}
 	log.Printf("Successfully created user: %v\n", u)
 	uid := u.UserInfo.UID
+	c.Set("affect_id", uid)
 	// Create user
 	// var user User
 	// user.
@@ -167,6 +168,7 @@ func DeleteUser(c *gin.Context) {
 		c.Abort()
 		return
 	}
+	c.Set("affect_id", uid)
 	ret := db.Where("uid = ?", uid).Delete(&User{})
 
 	if db.Error != nil {
