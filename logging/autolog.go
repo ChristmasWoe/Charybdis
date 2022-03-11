@@ -36,9 +36,13 @@ func Logger() gin.HandlerFunc {
 		// after request
 		uid, uidExists := c.Get("UUID")
 
-		affect_id, _ := c.Get("affect_id")
+		affect_id, affect_id_exists := c.Get("affect_id")
 
-		lg.AffectId = affect_id.(string)
+		if affect_id_exists {
+			lg.AffectId = affect_id.(string)
+		} else {
+			lg.AffectId = ""
+		}
 
 		if !uidExists {
 			return
