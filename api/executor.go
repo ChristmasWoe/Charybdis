@@ -349,6 +349,49 @@ func DeleteExecutor(c *gin.Context) {
 	}
 }
 
+func SearchExecutorByICO(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+
+	query := c.Param("query")
+	if query == "" {
+		c.Header("Content-Type", "application/json")
+		c.JSON(http.StatusNotFound,
+			gin.H{"Error": "Invalid or empty query"})
+		c.Abort()
+		return
+	}
+
+	exs := make([]Executor, 0)
+	exsExt := make([]ExecutorGetInterface, 0)
+	result := db.Where("ico LIKE ?", "%"+query+"%").Find(&exs)
+
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Error": result.Error.Error()})
+		return
+	}
+
+	for _, v := range exs {
+		exsExt = append(exsExt, ExecutorGetInterface{
+			Id:               v.Id,
+			Name:             v.Name,
+			Description:      v.Description,
+			DescriptionShort: v.DescriptionShort,
+			DateCreated:      v.DateCreated,
+			ExecutorType:     v.ExecutorType,
+			ICO:              v.ICO,
+			WebsiteUrl:       v.WebsiteUrl,
+			MainLocation:     v.MainLocation,
+			City:             v.City,
+			Address:          v.Address,
+			WorkHour:         v.WorkHour,
+			WorkingRangeInKm: v.WorkingRangeInKm,
+			Categories:       getCategoriesByIds(c, v.Categories),
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": exsExt})
+}
+
 // func editProject(w http.ResponseWriter, r *http.Request) {
 // 	db := OpenConnection()
 // 	r.ParseMultipartForm(0)

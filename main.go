@@ -87,7 +87,9 @@ func main() {
 	r.PATCH("/executor/update/:id", api.UpdateExecutor)
 	r.DELETE("/executor/delete/:id", api.DeleteExecutor)
 	r.GET("/executor/get/:id", api.GetExecutor)
+	r.GET("/executor/searchICO/:query", api.SearchExecutorByICO)
 	r.GET("/logs/get/:uid", api.GetLogsById)
+
 	// r.Run(":8080")
 	// mux.Handle("/categories/edit", handlerMiddleware(http.HandlerFunc(editProject)))
 
