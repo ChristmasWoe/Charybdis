@@ -216,6 +216,7 @@ func CreateExecutor(c *gin.Context) {
 	fmt.Println("Executor", ex.MainLocation)
 	guid := uuid.NewV4().String()
 	c.Set("affect_id", guid)
+	c.Set("ico", ex.ICO)
 	exec := Executor{Name: ex.Name,
 		Description:      ex.Description,
 		DescriptionShort: ex.DescriptionShort,
@@ -266,7 +267,7 @@ func UpdateExecutor(c *gin.Context) {
 	}
 	var oldEx Executor
 	db.Where("id = ?", id).Find(&oldEx)
-
+	c.Set("ico", ex.ICO)
 	oldEx.Name = ex.Name
 	oldEx.Description = ex.Description
 	oldEx.DescriptionShort = ex.DescriptionShort

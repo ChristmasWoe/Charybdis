@@ -18,6 +18,7 @@ type Log struct {
 	Latency    int64     `json:"latency"`
 	Status     int       `json:"status"`
 	AffectId   string    `json:"affect_id"`
+	ICO        string    `json:"ico"`
 }
 
 func Logger() gin.HandlerFunc {
@@ -42,6 +43,14 @@ func Logger() gin.HandlerFunc {
 			lg.AffectId = affect_id.(string)
 		} else {
 			lg.AffectId = ""
+		}
+
+		ico, ico_exists := c.Get("ico")
+
+		if ico_exists {
+			lg.ICO = ico.(string)
+		} else {
+			lg.ICO = ""
 		}
 
 		if !uidExists {

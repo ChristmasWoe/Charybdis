@@ -22,6 +22,7 @@ type Log struct {
 	Latency    int64     `json:"latency"`
 	Status     int       `json:"status"`
 	AffectId   string    `json:"affect_id"`
+	ICO        string    `json:"ico"`
 }
 
 func GetLogsById(c *gin.Context) {
