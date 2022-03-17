@@ -17,7 +17,7 @@ const (
 	port     = 5432
 	user     = "postgres"
 	password = "root"
-	dbname   = "postgres"
+	dbname   = "charybdisdb"
 )
 
 func OpenConnection() *gorm.DB {
