@@ -50,7 +50,8 @@ func main() {
 	db := config.OpenConnection()
 	_, firestore := config.SetupFirebase()
 	// migrateToFirebase.MigrateCategories(db, firestore)
-	migrateToFirebase.MigrateExecutors(db, firestore)
+	// migrateToFirebase.MigrateExecutors(db, firestore)
+	migrateToFirebase.MigrateLogs(db, firestore)
 	// migrateToFirebase.MigrateUsers(db, firestore)
 	// r.Use(func(c *gin.Context) {
 	// 	c.Set("db", db)
